@@ -1,0 +1,26 @@
+This directory (WORK) was setup by two former Incognito dev members. They were attemtping to get a working testnet online for us, however, they ran into some issues.
+
+They have informed us of the following:
+
+Khanh Le, [11/21/2024 10:23 PM]
+1. understand incognito-cli and all its feature, start with generate keys, you will need to gen 64 keys or more.
+
+Khanh Le, [11/21/2024 10:23 PM]
+2. put the key into keylist.json, follow the pre define format.
+
+Khanh Le, [11/21/2024 10:25 PM]
+3. check config and params inside folder config (testnet1 and testnet2), there a punch of checkpoint to enable feature, the checkpoint is number epoch.
+
+Khanh Le, [11/21/2024 10:26 PM]
+so if we start new testnet we can set epoch to 1 for the feature to enable. start privacy v2 at epoch 0 or 1
+
+Khanh Le, [11/21/2024 10:27 PM]
+set the number of fixed node, max number of nodes in config
+
+Khanh Le, [11/21/2024 10:27 PM]
+4. check the run.sh, it has a list of command to start all node in same server.
+
+
+
+The TG chat can be accessed via:
+https://t.me/+bjR2aYTfNL1mODAx
