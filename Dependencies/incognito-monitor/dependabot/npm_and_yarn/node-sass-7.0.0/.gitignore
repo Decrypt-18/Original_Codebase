@@ -1,0 +1,7 @@
+/.idea
+/node_modules
+/build
+/server
+/dist
+*.log
+/electron/build.js

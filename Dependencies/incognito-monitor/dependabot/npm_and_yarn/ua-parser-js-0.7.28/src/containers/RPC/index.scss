@@ -1,0 +1,66 @@
+.rpc {
+  .rpc-method {
+    display: flex;
+    padding: 10px;
+    $line-height: 80px;
+
+    .method-name {
+      width: 25%;
+      line-height: $line-height;
+    }
+
+    .method-params {
+      width: 25%;
+      line-height: $line-height;
+
+      input {
+        font-size: 16px;
+      }
+    }
+
+    .method-result {
+      width: 40%;
+    }
+
+    .method-actions {
+      width: 15%;
+      line-height: $line-height;
+      margin-left: 30px;
+    }
+  }
+
+  .rpc-method.method-header {
+    > div {
+      line-height: 24px;
+    }
+
+    .method-header-1 {
+      display: flex;
+      width: 60%;
+
+      > div {
+        line-height: 24px;
+      }
+    }
+  }
+
+  .rpc-methods-wrapper {
+    display: flex;
+
+    .rpc-methods {
+      width: 60%;
+    }
+
+    .methods-result {
+      flex-grow: 1;
+
+      textarea {
+        height: 100%;
+      }
+    }
+  }
+
+  .clear-btn {
+    margin-left: 20px;
+  }
+}

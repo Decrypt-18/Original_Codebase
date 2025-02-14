@@ -1,0 +1,124 @@
+package jenkinsfiles.QC_Automation_Test
+
+pipeline {
+  agent { label 'Node_134' }
+  parameters {
+    string(
+      name: 'INCOGNITO_TEST_FRAMEWORK_BRANCH',
+      description: 'Incognito test framework branch',
+      defaultValue: 'jenkins-qc-automation'
+    )
+    extendedChoice(
+      defaultValue: 'TestCases/Transactions',
+      description: 'Testcase to run',
+      descriptionPropertyValue: 'TestCases/Bridge,TestCases/DEX,TestCases/Staking,TestCases/Transactions',
+      multiSelectDelimiter: ' ',
+      name: 'TEST_RUNNER_TESTCASES',
+      quoteValue: false,
+      saveJSONParameterToFile: false,
+      type: 'PT_CHECKBOX',
+      value: 'TestCases/Bridge,TestCases/DEX,TestCases/Staking,TestCases/Transactions',
+      visibleItemCount: 4
+    )
+    string(
+      name: 'INCOGNITO_TESTING_TEST_BED',
+      description: 'Incognito testing test bed',
+      defaultValue: 'DevJenkinsQCAutomation'
+    )
+    string(
+      name: 'INCOGNITO_TESTING_TEST_DATA',
+      description: 'Incognito testing test data',
+      defaultValue: 'account_qc_automation'
+    )
+    string(
+      name: 'INCOGNITO_TESTING_TEST_DATA_2',
+      description: 'Incognito testing test data2',
+      defaultValue: 'account_qc_automation_2'
+    )
+
+  }
+
+  stages {
+    stage('Checkout source code') {
+      steps {
+        echo "Checkingout branch/tag ${INCOGNITO_TEST_FRAMEWORK_BRANCH}"
+
+        dir("incognito-chain-testing") {
+          checkout(
+            [
+              $class           : 'GitSCM',
+              branches         : [[name: "${INCOGNITO_TEST_FRAMEWORK_BRANCH}"]],
+              userRemoteConfigs: [[url: 'https://github.com/incognitochain/incognito-chain-testing.git']]
+            ]
+          )
+        }
+      }
+    }
+
+    stage('Install python dependencies') {
+      steps {
+        echo "Install dependencies"
+        dir("incognito-chain-testing") {
+          sh "pip3 install -r pip_requirements.txt"
+          sh "chmod +x run-jenkin-tests.sh"
+        }
+      }
+    }
+
+
+    stage('Running test cases') {
+      steps {
+        echo "Running test on TestCases/Transactions"
+        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+          dir("incognito-chain-testing") {
+            sh "./run-jenkin-tests.sh ${INCOGNITO_TESTING_TEST_BED} ${INCOGNITO_TESTING_TEST_DATA} ${BUILD_TAG} \"${TEST_RUNNER_TESTCASES}\""
+          }
+        }
+      }
+      post {
+        always {
+          echo "Done"
+        }
+      }
+    }
+
+  }
+
+
+  post {
+    success {
+      script {
+        def testReportURL = "http://${env.NODE_IP}/test-reports/${BUILD_TAG}"
+
+        slackSend(channel: "#incognito-jenkins-dev", attachments: [
+          [
+            text : "Build <${BUILD_URL}|*${JOB_NAME} ${BUILD_DISPLAY_NAME}*> is successful",
+            color: '#4caf50',
+            type : 'mrkdwn',
+          ],
+          [
+            "type": "divider"
+          ],
+          [
+            text : "Test report url: <${testReportURL}|${testReportURL}>",
+            color: '#4caf50',
+            type : 'mrkdwn',
+          ],
+        ])
+      }
+    }
+
+    failure {
+      slackSend(channel: "#incognito-jenkins-dev", attachments: [
+        [
+          text : "Build <${BUILD_URL}|*${JOB_NAME} ${BUILD_DISPLAY_NAME}*> failed!",
+          color: '#c62828'
+        ],
+        [
+          "type": "divider"
+        ]
+      ])
+    }
+  }
+
+}

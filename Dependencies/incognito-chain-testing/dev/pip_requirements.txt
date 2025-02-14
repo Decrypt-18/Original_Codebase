@@ -1,0 +1,12 @@
+pathlib2
+pexpect
+pytest
+pytest-html
+requests
+scandir
+urllib3
+virtualenv
+websocket-client
+deepdiff
+mysql-connector-python
+matplotlib

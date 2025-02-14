@@ -1,0 +1,5 @@
+/node_modules
+/.circleci
+/.idea
+/dist
+/build

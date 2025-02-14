@@ -1,0 +1,41 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "incognito-document-production"
+  namespace: "default"
+  labels:
+    app: "incognito-document-production"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: "incognito-document-production"
+  template:
+    metadata:
+      labels:
+        app: "incognito-document-production"
+    spec:
+      containers:
+        - name: "incognito-document-sha256-1"
+          image: "gcr.io/staging-incognito/incognito-document:1"
+---
+apiVersion: "autoscaling/v2beta1"
+kind: "HorizontalPodAutoscaler"
+metadata:
+  name: "incognito-document-production-hpa-on0v"
+  namespace: "default"
+  labels:
+    app: "incognito-document-production"
+spec:
+  scaleTargetRef:
+    kind: "Deployment"
+    name: "incognito-document-production"
+    apiVersion: "apps/v1"
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: "Resource"
+      resource:
+        name: "cpu"
+        targetAverageUtilization: 80

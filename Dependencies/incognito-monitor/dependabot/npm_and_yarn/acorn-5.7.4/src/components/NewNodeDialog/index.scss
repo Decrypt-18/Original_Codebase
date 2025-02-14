@@ -1,0 +1,21 @@
+.new-node-dialog-footer {
+  text-align: right;
+
+  .add-btn {
+    margin-left: 20px;
+  }
+
+  .cancel-btn {
+
+  }
+}
+
+.new-node-dialog-body {
+  label {
+    min-width: 60px;
+  }
+}
+
+.new-node-dialog {
+  max-width: 300px;
+}
