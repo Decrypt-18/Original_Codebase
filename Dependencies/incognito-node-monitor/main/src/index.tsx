@@ -1,0 +1,15 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { FixedGlobalStyle } from 'src/theme';
+import App from './app/App';
+import reportWebVitals from './reportWebVitals';
+
+ReactDOM.render(
+    <React.StrictMode>
+        <FixedGlobalStyle />
+        <App />
+    </React.StrictMode>,
+    document.getElementById('root'),
+);
+
+reportWebVitals();

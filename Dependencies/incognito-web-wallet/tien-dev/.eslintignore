@@ -1,0 +1,11 @@
+/build/**
+/coverage/**
+/docs/**
+/jsdoc/**
+/config
+serviceWorker.js
+/electron/build.js
+/dist/**
+/.idea
+react-app-env.d.ts
+*.test.ts*

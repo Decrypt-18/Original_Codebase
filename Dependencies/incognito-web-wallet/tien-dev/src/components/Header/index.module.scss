@@ -1,0 +1,23 @@
+@import "src/styles/colors";
+
+.header {
+  display: flex;
+  width: 100vw;
+  height: 60px;
+  padding: 10px 20px;
+  background: $dark2;
+}
+
+.left, .right, .center {
+  display: flex
+}
+
+.right {
+  height: 100%;
+  align-items: center;
+  margin-left: auto;
+}
+
+.icon {
+  font-size: 30px;
+}

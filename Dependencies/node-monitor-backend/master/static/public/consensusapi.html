@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Input Committee PublicKey (testnet2) </h2>
+        <form id="form" action="#">
+            <div class="form-group">
+                <input class="form-control" id="cpk"
+                    value="121VhftSAygpEJZ6i9jGkL9ggqENvke9AJwVxnELHtxiTmMmf7VKEEMkDJRyEwAgcMg7XDRUJKiW3btcXFDRQTBSTevngwmZXADKiWKX4zQam6rnUvooNKUAyVHP4wZYsixRRkEqex9uKDFaUNd1w5iVpjZEjxinZTWNhg8fbEAcmGHyvkuxFTyURWzLwGHXqMwJ4dQgpfK6nzqyWpZH2CpcS4tCTpLLuWZFnPdKJQY4a4opmWc746jUzHFLB3fJAJkGq38hcQT5fxEJJ9pA8GrrBCgjcWBe7JJ8Gb2yoLoiwCJksCLYiGG2BdBzB8EMkU3GomJ5T7fBBFFFgUXd4Ch77yAgLGhSJtT6WDjCB98ZQi1WaT6wkmCVVtBLt5ssgmMiH4oWE8nngQHbsMGv3kNo9kzJ1h3QCnCqfMmxpwvMrRjh"
+                    name="cpk">
+            </div>
+            <button type="submit" class="btn btn-default">Submit</button>
+        </form>
+        <div id="activity-table">
+        </div>
+
+        <div>
+            <p>
+            <h2>POST http://139.162.54.236:3333/commiteee/activity</h2>
+            <h3>Data: {commitee: "121...", lastEpoch: -1}</h3>
+            <h3>Note: for optimizing performance, we only get 10 epoch pk in committee. Use lastEpoch as offset</h3>
+            </br>
+            <h2>POST http://139.162.54.236:3333/commiteee/epochInfo</h2>
+            <h3>Data: {commitee: "121...", chainEpoch: [1,1000,1,1001,1,10003]} . </h3>
+            <h3>Note: chainEpoch is array (chain, epoch, chain, epoch,...)</h3>
+
+            </p>
+        </div>
+
+
+        <script>
+            const baseURL = ""
+            const committeeActivityURI = "/committee/activity"
+            const epochInfoURI = "/committee/epochInfo"
+
+            async function getConsensusActivity(cpk, lastEpoch) {
+                return new Promise(r => {
+                    postRequest(baseURL + committeeActivityURI, { committee: cpk, lastEpoch: lastEpoch }, function (err, response) {
+                        if (err) {
+                            alert(err.message)
+                            r(null)
+                        } else {
+                            r(response)
+                        }
+                    })
+                })
+
+            }
+
+            async function getEpochInfoActivity(cpk, epochs) {
+                return new Promise(r => {
+                    postRequest(baseURL + epochInfoURI, { committee: cpk, chainEpoch: epochs }, function (err, response) {
+                        if (err) {
+                            alert(err.message)
+                            r(null)
+                        } else {
+                            r(response)
+                        }
+                    })
+                })
+
+            }
+
+            function postRequest(url, data, cb) {
+                var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance 
+                var theUrl = url;
+                xmlhttp.onload = () => {
+                    // print JSON response
+                    if (xmlhttp.status >= 200 && xmlhttp.status < 300) {
+                        const response = JSON.parse(xmlhttp.responseText);
+                        cb(null, response)
+                    }
+                }
+                xmlhttp.open("POST", theUrl);
+                xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                xmlhttp.send(JSON.stringify(data));
+            }
+
+            document.querySelector("#form").onsubmit = async function () {
+                document.querySelector("#activity-table").innerHTML = ""
+                let cpk = document.querySelector("#cpk").value
+                let consensusActivity = await getConsensusActivity(cpk, -1)
+                let epochActivity = []
+                consensusActivity.map(x => {
+                    epochActivity.push(x.chainID)
+                    epochActivity.push(x.epoch)
+                })
+                let epochInfo = await getEpochInfoActivity(cpk, epochActivity)
+
+                let epochInfoAgg = epochInfo.reduce(function (r, a) {
+                    r[a.chainID] = r[a.chainID] || {};
+                    r[a.chainID][a.epoch] = {
+                        voteSeen: a.voteSeen,
+                        proposeSeen: a.proposeBlockSeen,
+                    };
+                    return r;
+                }, {});
+
+                let tableBody = ""
+                for (let i in consensusActivity) {
+                    let { chainID, epoch, startTime, reward } = consensusActivity[i]
+                    tableBody += `<tr><td>${startTime}</td><td>${chainID}</td><td>${epoch}</td><td>${reward}</td><td>${epochInfoAgg[chainID][epoch].voteSeen}</td><td>${epochInfoAgg[chainID][epoch].proposeSeen}</td></tr>
+                    `
+                }
+
+
+
+                let html = `<table class="table table-condensed">
+                            <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Chain</th>
+                                <th>Epoch</th>
+                                <th>Reward</th>
+                                <th>#votes</th>
+                                <th>#blocks</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            ${tableBody}
+                            </tbody>
+                        </table>`
+                document.querySelector("#activity-table").innerHTML = html
+
+
+
+
+                return false
+            }
+        </script>
+    </div>
+
+</body>
+
+</html>

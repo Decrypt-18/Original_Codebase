@@ -1,0 +1,1 @@
+export { loadWalletAction } from './wallet';
